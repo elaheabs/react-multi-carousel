@@ -50,7 +50,8 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     dotListClass: "",
     focusOnSelect: false,
     centerMode: false,
-    additionalTransfrom: 0
+    additionalTransfrom: 0,
+    noTransform: false
   };
   private readonly containerRef: React.RefObject<HTMLDivElement>;
   private readonly listRef: React.RefObject<HTMLUListElement>;
@@ -130,13 +131,15 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
     this.isInThrottle = isInThrottle;
   }
   public setTransformDirectly(position: number, withAnimation?: boolean) {
-    const { additionalTransfrom } = this.props;
+    const { additionalTransfrom, noTransform } = this.props;
     const currentTransform = getTransform(this.state, this.props, position);
     this.transformPlaceHolder = position;
     if (this.listRef && this.listRef.current) {
       this.setAnimationDirectly(withAnimation);
-      this.listRef.current.style.transform = `translate3d(${currentTransform +
-        additionalTransfrom!}px,0,0)`;
+      if (!noTransform) {
+        this.listRef.current.style.transform = `translate3d(${currentTransform +
+          additionalTransfrom!}px,0,0)`;
+      }
     }
   }
   public setAnimationDirectly(animationAllowed?: boolean) {
@@ -696,7 +699,8 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
       additionalTransfrom,
       renderDotsOutside,
       renderButtonGroupOutside,
-      className
+      className,
+      noTransform
     } = this.props;
     if (process.env.NODE_ENV !== "production") {
       throwError(this.state, this.props);
@@ -722,6 +726,9 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
 
     // this lib supports showing next set of items partially as well as center mode which shows both.
     const currentTransform = getTransform(this.state, this.props);
+    const finalTransform = noTransform
+      ? undefined
+      : `translate3d(${currentTransform + additionalTransfrom!}px,0,0)`;
     return (
       <>
         <div
@@ -737,8 +744,7 @@ class Carousel extends React.Component<CarouselProps, CarouselInternalState> {
                 ? customTransition || defaultTransition
                 : "none",
               overflow: shouldRenderOnSSR ? "hidden" : "unset",
-              transform: `translate3d(${currentTransform +
-                additionalTransfrom!}px,0,0)`
+              transform: finalTransform
             }}
             onMouseMove={this.handleMove}
             onMouseDown={this.handleDown}

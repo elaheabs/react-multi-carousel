@@ -441,4 +441,16 @@ storiesOf("Carousel", module)
   })
   .addWithJSX("Responsive dot mode", () => {
     return <DotModeWithSlidesToSlide />;
+  })
+  .addWithJSX("No transform ", () => {
+    return  <Carousel
+    partialVisible
+    containerClass="container"
+    responsive={responsive}
+    noTransform={true}
+  >
+    {fakerData.map(card => {
+      return <Card {...card} />;
+    })}
+  </Carousel>;
   });
